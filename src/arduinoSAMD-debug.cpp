@@ -3,7 +3,7 @@
 
 #ifdef ARDUINO_ARCH_SAMD
 
-#include "lqPlatform-debug.h"
+#include "lqdiag.h"
 #include <Arduino.h>
 
 void dbg_print(const char *msg, ...)

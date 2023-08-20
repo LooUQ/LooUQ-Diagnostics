@@ -29,11 +29,13 @@
  * 
  *****************************************************************************/
 
-#ifndef __LQPRNT_H__
-#define __LQPRNT_H__
+#ifndef __LQDIAG_H__
+#define __LQDIAG_H__
 
 /* PRINTF macro support
  * ============================================================================================= */
+
+#define ENABLE_JLINKRTT                     // globally enable JLink RTT, define if JLink available and that is preferred DPRINT() output
 
 #ifndef DBGBUFFER_SZ
      #define DBGBUFFER_SZ 120
@@ -42,47 +44,53 @@
 
 // configure diagnostic logging output
 #if defined(ENABLE_DIAGPRINT)
-    #ifndef _TERMINAL
+
+    #if defined(ENABLE_JLINKRTT) && (defined(ARDUINO_ARCH_SAMD))
+        #include <jlinkRtt.h>               // will set _TERMINAL and define macro expansion for DPRINT()
+    #endif
+
+    #ifndef _TERMINAL                       // if NO _TERMINAL defined yet, default to platform serial ouput
         #define _TERMINAL
+        #define _TERMINAL_SERIAL
         asm(".global _printf_float");       // forces build to link in float support for printf
-        #define SERIAL_DBG                  // enable serial port output using devl host platform serial
         #define DIAGPRINT_SERIAL
-    #endif
 
-    #ifndef PRNT_DEFAULT
-        #define PRNT_DEFAULT 13
-        #define PRNT_INFO 15
-        #define PRNT_WARN 17
-        #define PRNT_ERROR 16
-
-        #define PRNT_CYAN 10
-        #define PRNT_MAGENTA 11
-        #define PRNT_WHITE 12
-        #define PRNT_GRAY 13
-        #define PRNT_BLUE 14
-        #define PRNT_GREEN 15
-        #define PRNT_RED 16
-        #define PRNT_YELLOW 17
-
-        #define PRNT_dCYAN 20
-        #define PRNT_dMAGENTA 21
-        #define PRNT_dBLUE 24
-        #define PRNT_dGREEN 25
-        #define PRNT_dRED 26
-        #define PRNT_dYELLOW 27
-    #endif
-
-    #if !defined(PRINTDBG)
         #define DPRINT(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)         // dbg_print is the serial port output, color info from macro is dropped
-    #endif
-    #if defined(ENABLE_DIAGPRINT_VERBOSE)
-        #define DPRINT_V(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)          // dbg_print is the serial port output, color info from macro is dropped
-    #endif
 
-#else // No PRINT() expansion, statements in source ignored
+        #if defined(ENABLE_DIAGPRINT_VERBOSE)
+            #define DPRINT_V(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)          // dbg_print is the serial port output, color info from macro is dropped
+        #else
+            #define DPRINT_V(c_, f_, ...)
+        #endif
+    #endif
+#else                                       // No DPRINT() expansion, statements in source ignored
     #define DPRINT(c_, f_, ...)
     #define DPRINT_V(c_, f_, ...)
 #endif
+
+#ifndef PRNT_DEFAULT
+    #define PRNT_DEFAULT 13
+    #define PRNT_INFO 15
+    #define PRNT_WARN 17
+    #define PRNT_ERROR 16
+
+    #define PRNT_CYAN 10
+    #define PRNT_MAGENTA 11
+    #define PRNT_WHITE 12
+    #define PRNT_GRAY 13
+    #define PRNT_BLUE 14
+    #define PRNT_GREEN 15
+    #define PRNT_RED 16
+    #define PRNT_YELLOW 17
+
+    #define PRNT_dCYAN 20
+    #define PRNT_dMAGENTA 21
+    #define PRNT_dBLUE 24
+    #define PRNT_dGREEN 25
+    #define PRNT_dRED 26
+    #define PRNT_dYELLOW 27
+#endif
+
 
 #ifdef __cplusplus
 extern "C"
@@ -109,5 +117,5 @@ void dbg_print(const char *msg, ...);
 #endif
 
 
-#endif // __LQPRNT_H__
+#endif // __LQDIAG_H__
 
