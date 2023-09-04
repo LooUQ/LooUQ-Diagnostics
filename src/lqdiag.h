@@ -70,7 +70,7 @@
 
 #ifndef PRNT_DEFAULT
     #define PRNT_DEFAULT 13
-    #define PRNT_INFO 15
+    #define PRNT_INFO 12
     #define PRNT_WARN 17
     #define PRNT_ERROR 16
 
