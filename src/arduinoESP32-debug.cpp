@@ -21,7 +21,7 @@ void dbg_print(const char *msg, ...)
 
     //Serial.println("*** print expansion completed");
 
-    Serial.print('>');
+    // Serial.print('>');
     // Arduino Serial.print()
     Serial.print(buf);
 }
