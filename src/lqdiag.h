@@ -35,38 +35,48 @@
 /* PRINTF macro support
  * ============================================================================================= */
 
-#define ENABLE_JLINKRTT                     // globally enable JLink RTT, define if JLink available and that is preferred DPRINT() output
-
 #ifndef DBGBUFFER_SZ
      #define DBGBUFFER_SZ 120
 #endif
+
+#define ENABLE_JLINKRTT
 
 
 // configure diagnostic logging output
 #if defined(ENABLE_DIAGPRINT)
 
-    #if defined(ENABLE_JLINKRTT) && (defined(ARDUINO_ARCH_SAMD))
-        #include <jlinkRtt.h>               // will set _TERMINAL and define macro expansion for DPRINT()
+    #ifdef DPRINT
+        #undef DPRINT
+    #endif
+    #ifdef DPRINT_V
+        #undef DPRINT_V
     #endif
 
-    #ifndef _TERMINAL                       // if NO _TERMINAL defined yet, default to platform serial ouput
-        #define _TERMINAL
-        #define _TERMINAL_SERIAL
-        asm(".global _printf_float");       // forces build to link in float support for printf
-        #define DIAGPRINT_SERIAL
+    #if defined(ENABLE_JLINKRTT) && (defined(ARDUINO_ARCH_SAMD))
+        #include <jlinkRtt.h>               // will set _TERMINAL and define macro expansion for DPRINT()
+    #else
+        #ifndef _TERMINAL                       // if NO _TERMINAL defined yet, default to platform serial ouput
+            #define _TERMINAL
+            #define _TERMINAL_SERIAL
+            asm(".global _printf_float");       // forces build to link in float support for printf
+            #define DIAGPRINT_SERIAL
 
-        #define DPRINT(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)         // dbg_print is the serial port output, color info from macro is dropped
+            #define DPRINT(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)         // dbg_print is the serial port output, color info from macro is dropped
 
-        #if defined(ENABLE_DIAGPRINT_VERBOSE)
-            #define DPRINT_V(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)          // dbg_print is the serial port output, color info from macro is dropped
-        #else
-            #define DPRINT_V(c_, f_, ...)
+            #if defined(ENABLE_DIAGPRINT_VERBOSE)
+                #define DPRINT_V(c_, f_, ...) dbg_print((f_), ##__VA_ARGS__)          // dbg_print is the serial port output, color info from macro is dropped
+            #else
+                #define DPRINT_V(c_, f_, ...)
+            #endif
         #endif
     #endif
 #else                                       // No DPRINT() expansion, statements in source ignored
+    #undef DPRINT
+    #undef DPRINT_V
     #define DPRINT(c_, f_, ...)
     #define DPRINT_V(c_, f_, ...)
 #endif
+
 
 #ifndef PRNT_DEFAULT
     #define PRNT_DEFAULT 13
